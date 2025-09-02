@@ -107,10 +107,10 @@ export function Translator() {
               onChange={(e) => setInputText(e.target.value)}
               rows={6}
               className="text-base"
-              maxLength={200}
+              maxLength={250}
             />
             <p className="text-xs text-muted-foreground text-right pr-1">
-              {inputText.length} / 200
+              {inputText.length} / 250
             </p>
           </div>
 
