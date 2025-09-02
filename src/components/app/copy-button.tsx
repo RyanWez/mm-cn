@@ -35,7 +35,7 @@ export function CopyButton({ textToCopy }: CopyButtonProps) {
         "w-24 transition-all shrink-0",
         isCopied
           ? "bg-secondary text-secondary-foreground"
-          : "hover:bg-accent/10"
+          : "hover:bg-accent hover:text-accent-foreground"
       )}
     >
       {isCopied ? "Copied!" : "Copy"}
