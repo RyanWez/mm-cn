@@ -384,10 +384,6 @@ export const commonPhrasesData = [
     category: "အကောင့်ပြောင်း (更换账户)",
     translations: [
       {
-        burmese: "https://t.me/Kit29638",
-        chinese: "https://t.me/Kit29638",
-      },
-      {
         burmese: "ကျေးဇူးပြု၍ ညီမပို့ပေးတဲ့အတိုင်းလုပ်ဆောင်ပေးပါရှင့်။",
         chinese: "请按照我发送的步骤操作。",
       },
