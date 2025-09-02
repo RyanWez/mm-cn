@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Languages, ArrowRightLeft } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { translateCustomerQuery } from "@/ai/flows/translate-customer-queries";
-import { suggestCommonReplies } from "@/ai/flows/suggest-common-replies";
 import { CopyButton } from "./copy-button";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { Skeleton } from "../ui/skeleton";
@@ -27,7 +26,6 @@ const COOLDOWN_SECONDS = 30;
 export function Translator() {
   const [inputText, setInputText] = useState("");
   const [translation, setTranslation] = useState("");
-  const [suggestedReplies, setSuggestedReplies] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [translationDirection, setTranslationDirection] =
@@ -48,38 +46,21 @@ export function Translator() {
     setIsLoading(true);
     setError("");
     setTranslation("");
-    setSuggestedReplies([]);
 
     const sourceLanguage = translationDirection === "my-to-zh" ? "Burmese" : "Chinese";
     const targetLanguage = translationDirection === "my-to-zh" ? "Chinese" : "Burmese";
 
     try {
-      // Run both API calls in parallel
-      const [translationResult, repliesResult] = await Promise.all([
-        translateCustomerQuery({
-          query: inputText,
-          sourceLanguage,
-          targetLanguage,
-        }),
-        suggestCommonReplies({
-          translatedText: inputText, // Use original text for suggestion
-          language: targetLanguage,
-        }),
-      ]);
+      const translationResult = await translateCustomerQuery({
+        query: inputText,
+        sourceLanguage,
+        targetLanguage,
+      });
 
       if (translationResult.translation) {
         setTranslation(translationResult.translation);
-      }
-
-      if (repliesResult.suggestedReplies) {
-        setSuggestedReplies(repliesResult.suggestedReplies);
-      }
-
-      // Start cooldown only after both requests are finished successfully
-      if (translationResult.translation) {
         setCooldown(COOLDOWN_SECONDS);
       }
-
     } catch (e) {
       setError("Failed to get translation. Please try again.");
       console.error(e);
@@ -94,7 +75,6 @@ export function Translator() {
     );
     setInputText("");
     setTranslation("");
-    setSuggestedReplies([]);
     setError("");
   };
 
@@ -110,7 +90,7 @@ export function Translator() {
           Live Translator
         </CardTitle>
         <CardDescription>
-          Enter {sourceLabel} text to translate and get AI-powered reply suggestions.
+          Enter {sourceLabel} text to translate.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -151,10 +131,6 @@ export function Translator() {
                 <Skeleton className="h-5 w-48" />
                 <Skeleton className="h-12 w-full" />
               </div>
-              <div className="space-y-2">
-                <Skeleton className="h-5 w-40" />
-                <Skeleton className="h-12 w-full" />
-              </div>
             </div>
           )}
           {error && (
@@ -177,25 +153,6 @@ export function Translator() {
                   <CopyButton textToCopy={translation} />
                 </div>
               </div>
-
-              {suggestedReplies.length > 0 && (
-                <div className="w-full space-y-2">
-                  <h3 className="font-semibold text-foreground">
-                    Recommend:
-                  </h3>
-                  <div className="space-y-2">
-                    {suggestedReplies.slice(0, 1).map((reply, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between rounded-md border bg-background p-3"
-                      >
-                        <p className="text-sm">{reply}</p>
-                        <CopyButton textToCopy={reply} />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           )}
         </CardFooter>
