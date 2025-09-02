@@ -23,6 +23,20 @@ type TranslationDirection = "my-to-zh" | "zh-to-my";
 
 const COOLDOWN_SECONDS = 30;
 
+// Function to get cache from localStorage
+const getCache = (): Record<string, string> => {
+  const cache = localStorage.getItem("translationCache");
+  return cache ? JSON.parse(cache) : {};
+};
+
+// Function to set cache to localStorage
+const setCache = (key: string, value: string) => {
+  const cache = getCache();
+  cache[key] = value;
+  localStorage.setItem("translationCache", JSON.stringify(cache));
+};
+
+
 export function Translator() {
   const [inputText, setInputText] = useState("");
   const [translation, setTranslation] = useState("");
@@ -49,6 +63,16 @@ export function Translator() {
 
     const sourceLanguage = translationDirection === "my-to-zh" ? "Burmese" : "Chinese";
     const targetLanguage = translationDirection === "my-to-zh" ? "Chinese" : "Burmese";
+    const cacheKey = `${sourceLanguage}:${targetLanguage}:${inputText.trim()}`;
+    
+    // Check cache first
+    const cachedTranslation = getCache()[cacheKey];
+    if (cachedTranslation) {
+      setTranslation(cachedTranslation);
+      setIsLoading(false);
+      return;
+    }
+
 
     try {
       const translationResult = await translateCustomerQuery({
@@ -59,6 +83,7 @@ export function Translator() {
 
       if (translationResult) {
         setTranslation(translationResult);
+        setCache(cacheKey, translationResult); // Save to cache
         setCooldown(COOLDOWN_SECONDS);
       }
     } catch (e) {
