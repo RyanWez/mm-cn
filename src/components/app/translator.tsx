@@ -54,23 +54,32 @@ export function Translator() {
     const targetLanguage = translationDirection === "my-to-zh" ? "Chinese" : "Burmese";
 
     try {
-      const translationResult = await translateCustomerQuery({
-        query: inputText,
-        sourceLanguage,
-        targetLanguage,
-      });
+      // Run both API calls in parallel
+      const [translationResult, repliesResult] = await Promise.all([
+        translateCustomerQuery({
+          query: inputText,
+          sourceLanguage,
+          targetLanguage,
+        }),
+        suggestCommonReplies({
+          translatedText: inputText, // Use original text for suggestion
+          language: targetLanguage,
+        }),
+      ]);
+
       if (translationResult.translation) {
         setTranslation(translationResult.translation);
-        setCooldown(COOLDOWN_SECONDS);
-
-        const repliesResult = await suggestCommonReplies({
-          translatedText: translationResult.translation,
-          language: targetLanguage,
-        });
-        if (repliesResult.suggestedReplies) {
-          setSuggestedReplies(repliesResult.suggestedReplies);
-        }
       }
+
+      if (repliesResult.suggestedReplies) {
+        setSuggestedReplies(repliesResult.suggestedReplies);
+      }
+
+      // Start cooldown only after both requests are finished successfully
+      if (translationResult.translation) {
+        setCooldown(COOLDOWN_SECONDS);
+      }
+
     } catch (e) {
       setError("Failed to get translation. Please try again.");
       console.error(e);
@@ -145,8 +154,6 @@ export function Translator() {
               <div className="space-y-2">
                 <Skeleton className="h-5 w-40" />
                 <Skeleton className="h-12 w-full" />
-                <Skeleton className="h-12 w-full" />
-                <Skeleton className="h-12 w-full" />
               </div>
             </div>
           )}
@@ -177,7 +184,7 @@ export function Translator() {
                     Recommend:
                   </h3>
                   <div className="space-y-2">
-                    {suggestedReplies.map((reply, index) => (
+                    {suggestedReplies.slice(0, 1).map((reply, index) => (
                       <div
                         key={index}
                         className="flex items-center justify-between rounded-md border bg-background p-3"

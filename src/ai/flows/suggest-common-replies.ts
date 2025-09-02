@@ -1,9 +1,9 @@
 'use server';
 
 /**
- * @fileOverview Suggests common Chinese replies based on the translated Burmese input.
+ * @fileOverview Suggests a common Chinese reply based on the translated Burmese input.
  *
- * - suggestCommonReplies - A function that suggests common replies.
+ * - suggestCommonReplies - A function that suggests a common reply.
  * - SuggestCommonRepliesInput - The input type for the suggestCommonReplies function.
  * - SuggestCommonRepliesOutput - The return type for the suggestCommonReplies function.
  */
@@ -22,7 +22,7 @@ export type SuggestCommonRepliesInput = z.infer<typeof SuggestCommonRepliesInput
 const SuggestCommonRepliesOutputSchema = z.object({
   suggestedReplies: z
     .array(z.string())
-    .describe('An array of suggested improved replies.'),
+    .describe('An array containing a single suggested improved reply.'),
 });
 export type SuggestCommonRepliesOutput = z.infer<typeof SuggestCommonRepliesOutputSchema>;
 
@@ -37,8 +37,8 @@ const prompt = ai.definePrompt({
   input: {schema: SuggestCommonRepliesInputSchema},
   output: {schema: SuggestCommonRepliesOutputSchema},
   prompt: `You are a customer service AI assistant specializing in an online betting platform.
-  Given the following translated text in {{language}}, suggest 5 improved or alternative phrases that are clearer, more polite, or more effective for customer communication.
-  Provide ONLY the replies themselves, as a JSON array of strings.
+  Given the following translated text in {{language}}, suggest 1 improved or alternative phrase that is clearer, more polite, or more effective for customer communication.
+  Provide ONLY the reply itself, as a JSON array of one string.
 
   Text: {{{translatedText}}}
   `,
