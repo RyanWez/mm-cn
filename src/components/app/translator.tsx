@@ -73,8 +73,9 @@ export function Translator() {
     setTranslationDirection((prev) =>
       prev === "my-to-zh" ? "zh-to-my" : "my-to-zh"
     );
-    setInputText("");
-    setTranslation("");
+    const currentInput = inputText;
+    setInputText(translation);
+    setTranslation(currentInput);
     setError("");
   };
 
@@ -93,73 +94,78 @@ export function Translator() {
           Enter {sourceLabel} text to translate.
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="grid w-full gap-4">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-sm w-20 text-center">{sourceLabel}</span>
-            <Button variant="ghost" size="icon" onClick={toggleDirection}>
-              <ArrowRightLeft className="h-4 w-4" />
-            </Button>
-            <span className="font-semibold text-sm w-20 text-center">{targetLabel}</span>
-          </div>
-          <Textarea
-            placeholder={placeholder}
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            rows={4}
-            className="text-base"
-          />
-          <Button onClick={handleTranslate} disabled={isTranslateDisabled}>
-            {isLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : cooldown > 0 ? (
-              <span>Try again in {cooldown}s</span>
-            ) : (
-              <Languages className="mr-2 h-4 w-4" />
-            )}
-            {cooldown === 0 && 'Translate'}
-          </Button>
-           <p className="text-xs text-muted-foreground pt-2 text-center">
-              Ai နဲ့ ဘာသာ ပြန်တာ ဖြစ်တဲ့ အတွက် အနည်းငယ် ကွဲလွဲမှု ရှိနိုင်ပါသည်
-            </p>
-        </div>
-      </CardContent>
-
-      {(isLoading || translation || error) && (
-        <CardFooter className="flex-col items-start gap-6 pt-6">
-          <Separator />
-          {isLoading && (
-            <div className="w-full space-y-6">
-              <div className="space-y-2">
-                <Skeleton className="h-5 w-48" />
-                <Skeleton className="h-12 w-full" />
-              </div>
+      <CardContent className="space-y-6">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-4">
+          {/* Source Language Column */}
+          <div className="flex flex-col gap-2">
+            <div className="text-center font-semibold text-card-foreground p-2 rounded-md border bg-muted">
+              {sourceLabel}
             </div>
-          )}
-          {error && (
+            <Textarea
+              placeholder={placeholder}
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              rows={6}
+              className="text-base"
+              maxLength={200}
+            />
+            <p className="text-xs text-muted-foreground text-right pr-1">
+              {inputText.length} / 200
+            </p>
+          </div>
+
+          {/* Swap Button */}
+          <div className="flex items-center h-full pt-12">
+            <Button variant="ghost" size="icon" onClick={toggleDirection}>
+              <ArrowRightLeft className="h-5 w-5" />
+            </Button>
+          </div>
+
+          {/* Target Language Column */}
+          <div className="flex flex-col gap-2">
+            <div className="text-center font-semibold text-card-foreground p-2 rounded-md border bg-muted">
+              {targetLabel}
+            </div>
+            <div className="relative w-full">
+              <Textarea
+                placeholder=""
+                value={translation}
+                readOnly
+                rows={6}
+                className="text-base bg-muted"
+              />
+              {translation && (
+                 <div className="absolute bottom-2 right-2">
+                   <CopyButton textToCopy={translation} />
+                 </div>
+              )}
+            </div>
+             <p className="text-xs text-muted-foreground text-right pr-1 h-4"></p> {/* Spacer */}
+          </div>
+        </div>
+        
+        {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Error</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-          {translation && (
-            <div className="w-full space-y-6">
-              <div className="w-full space-y-2">
-                <h3 className="font-semibold text-foreground">
-                  {targetLabel} Translation:
-                </h3>
-                <div className="flex items-center justify-between rounded-md border bg-muted p-3">
-                  <p className="font-semibold text-primary">
-                    {translation}
-                  </p>
-                  <CopyButton textToCopy={translation} />
-                </div>
-              </div>
-            </div>
+
+        <Button onClick={handleTranslate} disabled={isTranslateDisabled} className="w-full">
+          {isLoading ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : cooldown > 0 ? (
+            <span>Try again in {cooldown}s</span>
+          ) : (
+            <Languages className="mr-2 h-4 w-4" />
           )}
-        </CardFooter>
-      )}
+          {cooldown === 0 && 'Translate'}
+        </Button>
+         <p className="text-xs text-muted-foreground pt-2 text-center opacity-70">
+            Ai နဲ့ ဘာသာ ပြန်တာ ဖြစ်တဲ့ အတွက် အနည်းငယ် ကွဲလွဲမှု ရှိနိုင်ပါသည်
+          </p>
+      </CardContent>
     </Card>
   );
 }
