@@ -95,7 +95,7 @@ export function Translator() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-start gap-4">
           {/* Source Language Column */}
           <div className="flex flex-col gap-2">
             <div className="text-center font-semibold text-card-foreground p-2 rounded-md border bg-muted">
@@ -115,8 +115,8 @@ export function Translator() {
           </div>
 
           {/* Swap Button */}
-          <div className="flex items-center h-full pt-12">
-            <Button variant="ghost" size="icon" onClick={toggleDirection}>
+          <div className="flex items-center justify-center h-full md:pt-12">
+            <Button variant="ghost" size="icon" onClick={toggleDirection} className="rotate-90 md:rotate-0">
               <ArrowRightLeft className="h-5 w-5" />
             </Button>
           </div>

@@ -34,8 +34,8 @@ Follow these instructions to get a local copy up and running.
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/myanmar-chinese-chat-assistant.git
-    cd myanmar-chinese-chat-assistant
+    git clone https://github.com/RyanWez/Live-Translator.git
+    cd Live-Translator
     ```
 
 2.  **Install dependencies:**
