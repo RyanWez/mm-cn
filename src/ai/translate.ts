@@ -15,7 +15,7 @@ interface TranslateCustomerQueryInput {
 }
 
 export async function translateCustomerQuery(input: TranslateCustomerQueryInput): Promise<string> {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-latest" });
 
   const prompt = `Translate the following ${input.sourceLanguage} customer service query to ${input.targetLanguage}, optimizing for phrases commonly used in online betting customer service:
 
