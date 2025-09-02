@@ -32,7 +32,7 @@ export function CommonPhrases() {
               {group.category}
             </AccordionTrigger>
             <AccordionContent className="pt-4">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-in fade-in-0 slide-in-from-top-4 duration-500">
                 {group.translations.map((phrase, index) => (
                   <Card
                     key={index}
