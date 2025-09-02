@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Loader2, Languages } from "lucide-react";
+import { Loader2, Languages, ArrowRightLeft } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { translateCustomerQuery } from "@/ai/flows/translate-customer-queries";
 import { suggestCommonReplies } from "@/ai/flows/suggest-common-replies";
@@ -20,30 +20,52 @@ import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { Skeleton } from "../ui/skeleton";
 import { AlertCircle } from "lucide-react";
 
+type TranslationDirection = "my-to-zh" | "zh-to-my";
+
+const COOLDOWN_SECONDS = 30;
+
 export function Translator() {
-  const [burmeseInput, setBurmeseInput] = useState("");
-  const [chineseTranslation, setChineseTranslation] = useState("");
+  const [inputText, setInputText] = useState("");
+  const [translation, setTranslation] = useState("");
   const [suggestedReplies, setSuggestedReplies] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [translationDirection, setTranslationDirection] =
+    useState<TranslationDirection>("my-to-zh");
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (cooldown > 0) {
+      timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [cooldown]);
 
   const handleTranslate = async () => {
-    if (!burmeseInput.trim()) return;
+    if (!inputText.trim() || cooldown > 0) return;
 
     setIsLoading(true);
     setError("");
-    setChineseTranslation("");
+    setTranslation("");
     setSuggestedReplies([]);
+
+    const sourceLanguage = translationDirection === "my-to-zh" ? "Burmese" : "Chinese";
+    const targetLanguage = translationDirection === "my-to-zh" ? "Chinese" : "Burmese";
 
     try {
       const translationResult = await translateCustomerQuery({
-        query: burmeseInput,
+        query: inputText,
+        sourceLanguage,
+        targetLanguage,
       });
       if (translationResult.translation) {
-        setChineseTranslation(translationResult.translation);
+        setTranslation(translationResult.translation);
+        setCooldown(COOLDOWN_SECONDS);
 
         const repliesResult = await suggestCommonReplies({
-          translatedBurmeseText: translationResult.translation,
+          translatedText: translationResult.translation,
+          language: targetLanguage,
         });
         if (repliesResult.suggestedReplies) {
           setSuggestedReplies(repliesResult.suggestedReplies);
@@ -57,6 +79,21 @@ export function Translator() {
     }
   };
 
+  const toggleDirection = () => {
+    setTranslationDirection((prev) =>
+      prev === "my-to-zh" ? "zh-to-my" : "my-to-zh"
+    );
+    setInputText("");
+    setTranslation("");
+    setSuggestedReplies([]);
+    setError("");
+  };
+
+  const isTranslateDisabled = isLoading || !inputText.trim() || cooldown > 0;
+  const sourceLabel = translationDirection === "my-to-zh" ? "Burmese" : "Chinese";
+  const targetLabel = translationDirection === "my-to-zh" ? "Chinese" : "Burmese";
+  const placeholder = translationDirection === "my-to-zh" ? "မင်္ဂလာပါ..." : "你好...";
+
   return (
     <Card>
       <CardHeader>
@@ -64,33 +101,39 @@ export function Translator() {
           Live Translator
         </CardTitle>
         <CardDescription>
-          Enter Burmese text to translate and get AI-powered reply suggestions.
+          Enter {sourceLabel} text to translate and get AI-powered reply suggestions.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid w-full gap-4">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-sm w-20 text-center">{sourceLabel}</span>
+            <Button variant="ghost" size="icon" onClick={toggleDirection}>
+              <ArrowRightLeft className="h-4 w-4" />
+            </Button>
+            <span className="font-semibold text-sm w-20 text-center">{targetLabel}</span>
+          </div>
           <Textarea
-            placeholder="မင်္ဂလာပါ..."
-            value={burmeseInput}
-            onChange={(e) => setBurmeseInput(e.target.value)}
+            placeholder={placeholder}
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
             rows={4}
             className="text-base"
           />
-          <Button
-            onClick={handleTranslate}
-            disabled={isLoading || !burmeseInput.trim()}
-          >
+          <Button onClick={handleTranslate} disabled={isTranslateDisabled}>
             {isLoading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : cooldown > 0 ? (
+              <span>Try again in {cooldown}s</span>
             ) : (
               <Languages className="mr-2 h-4 w-4" />
             )}
-            Translate
+            {cooldown === 0 && 'Translate'}
           </Button>
         </div>
       </CardContent>
 
-      {(isLoading || chineseTranslation || error) && (
+      {(isLoading || translation || error) && (
         <CardFooter className="flex-col items-start gap-6 pt-6">
           <Separator />
           {isLoading && (
@@ -114,24 +157,24 @@ export function Translator() {
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-          {chineseTranslation && (
+          {translation && (
             <div className="w-full space-y-6">
               <div className="w-full space-y-2">
                 <h3 className="font-semibold text-foreground">
-                  Chinese Translation:
+                  {targetLabel} Translation:
                 </h3>
                 <div className="flex items-center justify-between rounded-md border bg-muted p-3">
                   <p className="font-semibold text-primary">
-                    {chineseTranslation}
+                    {translation}
                   </p>
-                  <CopyButton textToCopy={chineseTranslation} />
+                  <CopyButton textToCopy={translation} />
                 </div>
               </div>
 
               {suggestedReplies.length > 0 && (
                 <div className="w-full space-y-2">
                   <h3 className="font-semibold text-foreground">
-                    Suggested Replies:
+                    Recommend:
                   </h3>
                   <div className="space-y-2">
                     {suggestedReplies.map((reply, index) => (

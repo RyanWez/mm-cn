@@ -1,7 +1,7 @@
 'use server';
 
 /**
- * @fileOverview This flow translates Burmese customer service queries to Chinese.
+ * @fileOverview This flow translates customer service queries between Burmese and Chinese.
  *
  * - translateCustomerQuery - A function that translates the input query.
  * - TranslateCustomerQueryInput - The input type for the translateCustomerQuery function.
@@ -12,12 +12,14 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const TranslateCustomerQueryInputSchema = z.object({
-  query: z.string().describe('The Burmese customer service query to translate.'),
+  query: z.string().describe('The customer service query to translate.'),
+  sourceLanguage: z.string().describe('The source language (Burmese or Chinese).'),
+  targetLanguage: z.string().describe('The target language (Burmese or Chinese).'),
 });
 export type TranslateCustomerQueryInput = z.infer<typeof TranslateCustomerQueryInputSchema>;
 
 const TranslateCustomerQueryOutputSchema = z.object({
-  translation: z.string().describe('The Chinese translation of the input query.'),
+  translation: z.string().describe('The translated of the input query.'),
 });
 export type TranslateCustomerQueryOutput = z.infer<typeof TranslateCustomerQueryOutputSchema>;
 
@@ -29,7 +31,7 @@ const prompt = ai.definePrompt({
   name: 'translateCustomerQueryPrompt',
   input: {schema: TranslateCustomerQueryInputSchema},
   output: {schema: TranslateCustomerQueryOutputSchema},
-  prompt: `Translate the following Burmese customer service query to Chinese, optimizing for phrases commonly used in online betting customer service:
+  prompt: `Translate the following {{sourceLanguage}} customer service query to {{targetLanguage}}, optimizing for phrases commonly used in online betting customer service:
 
 Query: {{{query}}}`,
 });
