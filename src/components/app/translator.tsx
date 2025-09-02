@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2, Languages, ArrowRightLeft } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { translateCustomerQuery } from "@/ai/flows/translate-customer-queries";
+import { translateCustomerQuery } from "@/ai/translate";
 import { CopyButton } from "./copy-button";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { Skeleton } from "../ui/skeleton";
@@ -57,8 +57,8 @@ export function Translator() {
         targetLanguage,
       });
 
-      if (translationResult.translation) {
-        setTranslation(translationResult.translation);
+      if (translationResult) {
+        setTranslation(translationResult);
         setCooldown(COOLDOWN_SECONDS);
       }
     } catch (e) {
