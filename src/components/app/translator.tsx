@@ -119,6 +119,9 @@ export function Translator() {
             )}
             {cooldown === 0 && 'Translate'}
           </Button>
+           <p className="text-xs text-muted-foreground pt-2 text-center">
+              Ai နဲ့ ဘာသာ ပြန်တာ ဖြစ်တဲ့ အတွက် အနည်းငယ် ကွဲလွဲမှု ရှိနိုင်ပါသည်
+            </p>
         </div>
       </CardContent>
 
@@ -152,9 +155,6 @@ export function Translator() {
                   </p>
                   <CopyButton textToCopy={translation} />
                 </div>
-                <p className="text-xs text-muted-foreground pt-2">
-                  Ai နဲ့ ဘာသာ ပြန်တာ ဖြစ်တဲ့ အတွက် အနည်းငယ် ကွဲလွဲမှု ရှိနိုင်ပါသည်
-                </p>
               </div>
             </div>
           )}
