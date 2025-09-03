@@ -14,7 +14,7 @@ interface TranslateCustomerQueryInput {
 
 export async function translateCustomerQuery(input: TranslateCustomerQueryInput): Promise<string> {
   const model = genAI.getGenerativeModel({ 
-    model: "gemini-1.5-pro-latest",
+    model: "gemini-1.5-flash",
     safetySettings: [
         {
           category: HarmCategory.HARM_CATEGORY_HARASSMENT,
