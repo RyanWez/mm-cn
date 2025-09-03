@@ -152,14 +152,22 @@ export function Translator() {
               {targetLabel}
             </div>
             <div className="relative w-full">
-              <Textarea
-                placeholder=""
-                value={translation}
-                readOnly
-                rows={6}
-                className="text-base bg-muted"
-              />
-              {translation && (
+              {isLoading ? (
+                <div className="space-y-2 p-3 rounded-md bg-muted border h-[110px]">
+                  <Skeleton className="h-4 w-4/5" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/5" />
+                </div>
+              ) : (
+                <Textarea
+                  placeholder=""
+                  value={translation}
+                  readOnly
+                  rows={6}
+                  className="text-base bg-muted"
+                />
+              )}
+              {translation && !isLoading && (
                  <div className="absolute bottom-2 right-2">
                    <CopyButton textToCopy={translation} />
                  </div>
