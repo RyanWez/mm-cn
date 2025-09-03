@@ -113,6 +113,8 @@ export function Translator() {
               Enter Burmese or Chinese
             </div>
             <Textarea
+              id="input-text"
+              name="input-text"
               placeholder={placeholder}
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
@@ -137,6 +139,8 @@ export function Translator() {
                 </div>
               ) : (
                 <Textarea
+                  id="translation-output"
+                  name="translation-output"
                   placeholder=""
                   value={translation}
                   readOnly
