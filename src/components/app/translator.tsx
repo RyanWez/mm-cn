@@ -18,6 +18,7 @@ import { CopyButton } from "./copy-button";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { Skeleton } from "../ui/skeleton";
 import { AlertCircle } from "lucide-react";
+import { LottieLoader } from "./lottie-loader";
 
 type TranslationDirection = "my-to-zh" | "zh-to-my";
 
@@ -153,10 +154,8 @@ export function Translator() {
             </div>
             <div className="relative w-full">
               {isLoading ? (
-                <div className="space-y-2 p-3 rounded-md bg-muted border h-[110px]">
-                  <Skeleton className="h-4 w-4/5" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-3/5" />
+                <div className="flex items-center justify-center rounded-md bg-muted border h-[110px]">
+                  <LottieLoader />
                 </div>
               ) : (
                 <Textarea
