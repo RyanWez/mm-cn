@@ -188,7 +188,7 @@ export function Translator() {
           {cooldown === 0 && 'Translate'}
         </Button>
          <p className="text-xs text-muted-foreground pt-2 text-center opacity-70">
-            Ai နဲ့ ဘာသာ ပြန်တာ ဖြစ်တဲ့ အတွက် အနည်းငယ် ကွဲလွဲမှု ရှိနိုင်ပါသည်
+            AI နဲ့ ဘာသာပြန်ထားတာဖြစ်လို့ အဓိပ္ပာယ် အနည်းငယ် ကွဲလွဲမှု ရှိနိုင်ပါသည်
           </p>
       </CardContent>
     </Card>
