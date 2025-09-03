@@ -21,10 +21,34 @@ export function CopyButton({ textToCopy }: CopyButtonProps) {
   }, [isCopied]);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(textToCopy).then(() => {
-      setIsCopied(true);
-    });
+    // Fallback for non-secure contexts
+    if (!navigator.clipboard) {
+      const textArea = document.createElement("textarea");
+      textArea.value = textToCopy;
+      textArea.style.position = "fixed"; // Avoid scrolling to bottom
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand("copy");
+        setIsCopied(true);
+      } catch (err) {
+        console.error("Fallback: Oops, unable to copy", err);
+      }
+      document.body.removeChild(textArea);
+      return;
+    }
+
+    navigator.clipboard.writeText(textToCopy).then(
+      () => {
+        setIsCopied(true);
+      },
+      (err) => {
+        console.error("Async: Could not copy text: ", err);
+      }
+    );
   };
+
 
   return (
     <Button
