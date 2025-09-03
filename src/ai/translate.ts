@@ -10,18 +10,18 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 interface TranslateCustomerQueryInput {
   query: string;
-  sourceLanguage: string;
-  targetLanguage: string;
 }
 
 export async function translateCustomerQuery(input: TranslateCustomerQueryInput): Promise<string> {
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-latest" });
 
-  const prompt = `Translate the following ${input.sourceLanguage} customer service query to ${input.targetLanguage}, optimizing for phrases commonly used in online betting customer service:
+  const prompt = `First, detect whether the following customer service query is in Burmese or Chinese. 
+Then, translate it to the other language (if it's Burmese, translate to Chinese; if it's Chinese, translate to Burmese).
+Optimize the translation for phrases commonly used in online betting customer service.
 
-Query: ${input.query}
+Query: "${input.query}"
 
-Return only the translated text.`;
+Return only the translated text, with no extra explanations or labels.`;
 
   try {
     const result = await model.generateContent(prompt);

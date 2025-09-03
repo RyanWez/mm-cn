@@ -5,46 +5,47 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Loader2, Languages, ArrowRightLeft } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
+import { Loader2, Languages } from "lucide-react";
 import { translateCustomerQuery } from "@/ai/translate";
 import { CopyButton } from "./copy-button";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-import { Skeleton } from "../ui/skeleton";
 import { AlertCircle } from "lucide-react";
 import { LottieLoader } from "./lottie-loader";
-
-type TranslationDirection = "my-to-zh" | "zh-to-my";
 
 const COOLDOWN_SECONDS = 30;
 
 // Function to get cache from localStorage
 const getCache = (): Record<string, string> => {
-  const cache = localStorage.getItem("translationCache");
-  return cache ? JSON.parse(cache) : {};
+  try {
+    const cache = localStorage.getItem("translationCache");
+    return cache ? JSON.parse(cache) : {};
+  } catch (error) {
+    console.error("Failed to read from localStorage", error);
+    return {};
+  }
 };
 
 // Function to set cache to localStorage
 const setCache = (key: string, value: string) => {
-  const cache = getCache();
-  cache[key] = value;
-  localStorage.setItem("translationCache", JSON.stringify(cache));
+  try {
+    const cache = getCache();
+    cache[key] = value;
+    localStorage.setItem("translationCache", JSON.stringify(cache));
+  } catch (error) {
+    console.error("Failed to write to localStorage", error);
+  }
 };
-
 
 export function Translator() {
   const [inputText, setInputText] = useState("");
   const [translation, setTranslation] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [translationDirection, setTranslationDirection] =
-    useState<TranslationDirection>("my-to-zh");
   const [cooldown, setCooldown] = useState(0);
 
   useEffect(() => {
@@ -56,16 +57,15 @@ export function Translator() {
   }, [cooldown]);
 
   const handleTranslate = async () => {
-    if (!inputText.trim() || cooldown > 0) return;
+    const trimmedInput = inputText.trim();
+    if (!trimmedInput || cooldown > 0) return;
 
     setIsLoading(true);
     setError("");
     setTranslation("");
 
-    const sourceLanguage = translationDirection === "my-to-zh" ? "Burmese" : "Chinese";
-    const targetLanguage = translationDirection === "my-to-zh" ? "Chinese" : "Burmese";
-    const cacheKey = `${sourceLanguage}:${targetLanguage}:${inputText.trim()}`;
-    
+    const cacheKey = `auto-translate:${trimmedInput}`;
+
     // Check cache first
     const cachedTranslation = getCache()[cacheKey];
     if (cachedTranslation) {
@@ -74,12 +74,9 @@ export function Translator() {
       return;
     }
 
-
     try {
       const translationResult = await translateCustomerQuery({
-        query: inputText,
-        sourceLanguage,
-        targetLanguage,
+        query: trimmedInput,
       });
 
       if (translationResult) {
@@ -95,20 +92,8 @@ export function Translator() {
     }
   };
 
-  const toggleDirection = () => {
-    setTranslationDirection((prev) =>
-      prev === "my-to-zh" ? "zh-to-my" : "my-to-zh"
-    );
-    const currentInput = inputText;
-    setInputText(translation);
-    setTranslation(currentInput);
-    setError("");
-  };
-
   const isTranslateDisabled = isLoading || !inputText.trim() || cooldown > 0;
-  const sourceLabel = translationDirection === "my-to-zh" ? "Burmese" : "Chinese";
-  const targetLabel = translationDirection === "my-to-zh" ? "Chinese" : "Burmese";
-  const placeholder = translationDirection === "my-to-zh" ? "မင်္ဂလာပါ..." : "你好...";
+  const placeholder = "ဘာသာပြန်ရန် စာသားရိုက်ထည့်ပါ";
 
   return (
     <Card>
@@ -117,15 +102,15 @@ export function Translator() {
           Live Translator
         </CardTitle>
         <CardDescription>
-          Enter {sourceLabel} text to translate.
+          Enter text to automatically detect the language and translate.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-start gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-4">
           {/* Source Language Column */}
           <div className="flex flex-col gap-2">
             <div className="text-center font-semibold text-card-foreground p-2 rounded-md border bg-muted">
-              {sourceLabel}
+              Enter Burmese or Chinese
             </div>
             <Textarea
               placeholder={placeholder}
@@ -140,17 +125,10 @@ export function Translator() {
             </p>
           </div>
 
-          {/* Swap Button */}
-          <div className="flex items-center justify-center h-full md:pt-12">
-            <Button variant="ghost" size="icon" onClick={toggleDirection} className="rotate-90 md:rotate-0">
-              <ArrowRightLeft className="h-5 w-5" />
-            </Button>
-          </div>
-
           {/* Target Language Column */}
-          <div className="flex flex-col gap-2">
-            <div className="text-center font-semibold text-card-foreground p-2 rounded-md border bg-muted">
-              {targetLabel}
+          <div className="flex flex-col gap-2 md:pt-0">
+             <div className="text-center font-semibold text-card-foreground p-2 rounded-md border bg-muted">
+              Translation
             </div>
             <div className="relative w-full">
               {isLoading ? (
@@ -175,7 +153,7 @@ export function Translator() {
              <p className="text-xs text-muted-foreground text-right pr-1 h-4"></p> {/* Spacer */}
           </div>
         </div>
-        
+
         {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
