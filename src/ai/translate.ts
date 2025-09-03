@@ -23,7 +23,7 @@ export async function translateCustomerQuery(input: TranslateCustomerQueryInput)
     model: "gemini-2.5-flash", // 
     // 3. Temperature ကိုလျှော့ချခြင်း
     generationConfig: {
-      temperature: 0.2,
+      temperature: 0.5,
       responseMimeType: "application/json", // JSON output အတွက် သတ်မှတ်ခြင်း
     },
     safetySettings: [
